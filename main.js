@@ -1,38 +1,69 @@
-let tarea = "";
-let contador = 0;
-let salir = false;
+// Inicializamos array vacio
+let listaDeTareas = [];
 
-while (!salir) {
+function agregarTarea(tarea, prioridad) {
+    // objeto
+    let nuevaTarea = {
+        tarea: tarea,
+        prioridad: prioridad,
+        completada: false 
+    };
+    listaDeTareas.push(nuevaTarea);
+    console.log("Tarea agregada con éxito.");
+}
+
+// mostramos lista
+function mostrarListaDeTareas() {
+    if (listaDeTareas.length === 0) {
+        console.log("No hay tareas en la lista.");
+    } else {
+        console.log("------ Lista de Tareas ------");
+        // Iteramos sobre cada tarea en el array y la mostramos
+        listaDeTareas.forEach((tarea, index) => {
+            console.log((index + 1) + ". Tarea: " + tarea.tarea + " - Prioridad: " + tarea.prioridad + " - Completada: " + (tarea.completada ? "Sí" : "No"));
+        });
+    }
+}
+
+function eliminarTareaCompleta() {
+    let tareaParaEliminar = parseInt(prompt("Ingrese el número de la tarea completada que desea eliminar:"));
+    if (isNaN(tareaParaEliminar) || tareaParaEliminar < 1 || tareaParaEliminar > listaDeTareas.length) {
+        console.log("Número de tarea no válido.");
+    } else {
+        listaDeTareas.splice(tareaParaEliminar - 1, 1);
+        console.log("Tarea eliminada con éxito.");
+    }
+}
+
+// menu
+function mostrarMenu() {
     console.log("------ Menú ------");
     console.log("1. Agregar tarea");
     console.log("2. Ver lista de tareas");
-    console.log("3. Salir");
-    
-    // Se pide al usuario que elija una opción
+    console.log("3. Eliminar tarea completada");
+    console.log("4. Salir");
+}
 
-    let opcion = prompt("Ingrese el número de la opción que desee:");
-
-    // Se procesa la opción elegida
+// opciones
+let opcion;
+while (opcion !== "4") {
+    mostrarMenu();
+    opcion = prompt("Ingrese el número de la opción que desee:");
 
     switch (opcion) {
         case "1":
-            tarea = prompt("Ingrese una tarea:");
-            contador++;
-            console.log("Tarea agregada: " + tarea);
+            let nuevaTarea = prompt("Ingrese la descripción de la tarea:");
+            let prioridad = prompt("Ingrese la prioridad de la tarea:");
+            agregarTarea(nuevaTarea, prioridad);
             break;
         case "2":
-            if (contador === 0) {
-                console.log("No hay tareas en la lista.");
-            } else {
-                console.log("------ Lista de Tareas ------");
-                for (let i = 1; i <= contador; i++) {
-                    console.log("Tarea " + i + ": " + tarea);
-                }
-            }
+            mostrarListaDeTareas();
             break;
         case "3":
-            console.log("Saliendo del programa. ¡Hasta la proxima!");
-            salir = true; 
+            eliminarTareaCompleta();
+            break;
+        case "4":
+            console.log("Saliendo del programa. ¡Hasta luego!");
             break;
         default:
             console.log("Opción no válida. Por favor, ingrese una opción válida.");
