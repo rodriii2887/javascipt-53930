@@ -1,72 +1,98 @@
-// Inicializamos array vacio
-let listaDeTareas = [];
+document.addEventListener("DOMContentLoaded", function() {
+    const listaTareas = document.querySelector(".lista-tareas");
+    const inputNuevaTarea = document.querySelector(".nueva-tarea");
+    const btnAgregar = document.querySelector(".agregar-btn");
 
-function agregarTarea(tarea, prioridad) {
-    // objeto
-    let nuevaTarea = {
-        tarea: tarea,
-        prioridad: prioridad,
-        completada: false 
-    };
-    listaDeTareas.push(nuevaTarea);
-    console.log("Tarea agregada con éxito.");
-}
+    // Cargar tareas desde el almacenamiento local
+    cargarTareas();
 
-// mostramos lista
-function mostrarListaDeTareas() {
-    if (listaDeTareas.length === 0) {
-        console.log("No hay tareas en la lista.");
-    } else {
-        console.log("------ Lista de Tareas ------");
-        // Iteramos sobre cada tarea en el array y la mostramos
-        listaDeTareas.forEach((tarea, index) => {
-            console.log((index + 1) + ". Tarea: " + tarea.tarea + " - Prioridad: " + tarea.prioridad + " - Completada: " + (tarea.completada ? "Sí" : "No"));
+    btnAgregar.addEventListener("click", function() {
+        agregarTarea();
+    });
+
+    inputNuevaTarea.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            agregarTarea();
+        }
+    });
+
+    // Función para agregar una nueva tarea a la lista
+    function agregarTarea() {
+        const tareaTexto = inputNuevaTarea.value.trim();
+        if (tareaTexto !== "") {
+            const nuevaTarea = document.createElement("li");
+            nuevaTarea.textContent = tareaTexto;
+            nuevaTarea.classList.add("tarea");
+
+            nuevaTarea.addEventListener("click", function() {
+                nuevaTarea.classList.toggle("completada");
+                guardarTareas();
+            });
+
+            //botón para eliminar la tarea
+            const btnEliminar = document.createElement("span");
+            btnEliminar.textContent = "❌";
+            btnEliminar.classList.add("eliminar-tarea");
+            btnEliminar.addEventListener("click", function(event) {
+                event.stopPropagation();
+                listaTareas.removeChild(nuevaTarea);
+                guardarTareas();
+            });
+
+            nuevaTarea.appendChild(btnEliminar);
+            listaTareas.appendChild(nuevaTarea);
+            guardarTareas();
+            inputNuevaTarea.value = "";
+        }
+    }
+
+    //cargar las tareas desde el almacenamiento local
+    function cargarTareas() {
+        const tareas = JSON.parse(localStorage.getItem("tareas"));
+        if (tareas) {
+            tareas.forEach(tarea => {
+                agregarTareaDesdeTexto(tarea.texto, tarea.completada);
+            });
+        }
+    }
+
+    //guardar las tareas en el almacenamiento local
+    function guardarTareas() {
+        const tareas = [];
+        listaTareas.childNodes.forEach(tarea => {
+            tareas.push({
+                texto: tarea.textContent,
+                completada: tarea.classList.contains("completada")
+            });
         });
+        localStorage.setItem("tareas", JSON.stringify(tareas));
     }
-}
 
-function eliminarTareaCompleta() {
-    let tareaParaEliminar = parseInt(prompt("Ingrese el número de la tarea completada que desea eliminar:"));
-    if (isNaN(tareaParaEliminar) || tareaParaEliminar < 1 || tareaParaEliminar > listaDeTareas.length) {
-        console.log("Número de tarea no válido.");
-    } else {
-        listaDeTareas.splice(tareaParaEliminar - 1, 1);
-        console.log("Tarea eliminada con éxito.");
+    function agregarTareaDesdeTexto(texto, completada) {
+        const nuevaTarea = document.createElement("li");
+        nuevaTarea.textContent = texto;
+        nuevaTarea.classList.add("tarea");
+        if (completada) {
+            nuevaTarea.classList.add("completada");
+        }
+
+        nuevaTarea.addEventListener("click", function() {
+            nuevaTarea.classList.toggle("completada");
+            guardarTareas();
+        });
+
+        // botón para eliminar la tarea
+        const btnEliminar = document.createElement("span");
+        btnEliminar.textContent = "❌";
+        btnEliminar.classList.add("eliminar-tarea");
+        btnEliminar.addEventListener("click", function(event) {
+            event.stopPropagation();
+            listaTareas.removeChild(nuevaTarea);
+            guardarTareas();
+        });
+
+        nuevaTarea.appendChild(btnEliminar);
+        listaTareas.appendChild(nuevaTarea);
     }
-}
+});
 
-// menu
-function mostrarMenu() {
-    console.log("------ Menú ------");
-    console.log("1. Agregar tarea");
-    console.log("2. Ver lista de tareas");
-    console.log("3. Eliminar tarea completada");
-    console.log("4. Salir");
-}
-
-// opciones
-let opcion;
-while (opcion !== "4") {
-    mostrarMenu();
-    opcion = prompt("Ingrese el número de la opción que desee:");
-
-    switch (opcion) {
-        case "1":
-            let nuevaTarea = prompt("Ingrese la descripción de la tarea:");
-            let prioridad = prompt("Ingrese la prioridad de la tarea:");
-            agregarTarea(nuevaTarea, prioridad);
-            break;
-        case "2":
-            mostrarListaDeTareas();
-            break;
-        case "3":
-            eliminarTareaCompleta();
-            break;
-        case "4":
-            console.log("Saliendo del programa. ¡Hasta luego!");
-            break;
-        default:
-            console.log("Opción no válida. Por favor, ingrese una opción válida.");
-            break;
-    }
-}
