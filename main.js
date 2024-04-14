@@ -1,98 +1,67 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const listaTareas = document.querySelector(".lista-tareas");
-    const inputNuevaTarea = document.querySelector(".nueva-tarea");
-    const btnAgregar = document.querySelector(".agregar-btn");
+$(document).ready(function() {
+    const listaTareas = $(".lista-tareas");
+    const inputNuevaTarea = $(".nueva-tarea");
+    const btnAgregar = $(".agregar-btn");
 
-    // Cargar tareas desde el almacenamiento local
+    // Cargar tareas
     cargarTareas();
 
-    btnAgregar.addEventListener("click", function() {
-        agregarTarea();
+    // Agregar evento
+    btnAgregar.click(function() {
+        agregarTarea(inputNuevaTarea.val());
     });
 
-    inputNuevaTarea.addEventListener("keypress", function(event) {
+    inputNuevaTarea.keypress(function(event) {
         if (event.key === "Enter") {
-            agregarTarea();
+            agregarTarea(inputNuevaTarea.val());
         }
     });
 
-    // Función para agregar una nueva tarea a la lista
-    function agregarTarea() {
-        const tareaTexto = inputNuevaTarea.value.trim();
-        if (tareaTexto !== "") {
-            const nuevaTarea = document.createElement("li");
-            nuevaTarea.textContent = tareaTexto;
-            nuevaTarea.classList.add("tarea");
+    //agregar una nueva tarea a la lista
+    function agregarTarea(tareaTexto) {
+        if (tareaTexto.trim() !== "") {
+            const nuevaTarea = $("<li>").text(tareaTexto).addClass("tarea");
 
-            nuevaTarea.addEventListener("click", function() {
-                nuevaTarea.classList.toggle("completada");
+            //marcar como completada al hacer clic
+            nuevaTarea.click(function() {
+                $(this).toggleClass("completada");
                 guardarTareas();
             });
 
-            //botón para eliminar la tarea
-            const btnEliminar = document.createElement("span");
-            btnEliminar.textContent = "❌";
-            btnEliminar.classList.add("eliminar-tarea");
-            btnEliminar.addEventListener("click", function(event) {
-                event.stopPropagation();
-                listaTareas.removeChild(nuevaTarea);
+            // botón para eliminar la tarea
+            const btnEliminar = $("<span>").text("❌").addClass("eliminar-tarea").click(function(event) {
+                event.stopPropagation(); // Evitar que se marque la tarea como completada al hacer clic en la "x"
+                $(this).parent().remove();
                 guardarTareas();
             });
 
-            nuevaTarea.appendChild(btnEliminar);
-            listaTareas.appendChild(nuevaTarea);
+            nuevaTarea.append(btnEliminar);
+            listaTareas.append(nuevaTarea);
             guardarTareas();
-            inputNuevaTarea.value = "";
+            inputNuevaTarea.val("");
         }
     }
 
-    //cargar las tareas desde el almacenamiento local
+    // cargar las tareas desde una API externa
     function cargarTareas() {
-        const tareas = JSON.parse(localStorage.getItem("tareas"));
-        if (tareas) {
-            tareas.forEach(tarea => {
-                agregarTareaDesdeTexto(tarea.texto, tarea.completada);
+        $.getJSON("https://jsonplaceholder.typicode.com/todos", function(data) {
+            $.each(data, function(index, tarea) {
+                if (index < 10) { // Limitamos a cargar solo 10 tareas para mantener la demostración simple
+                    agregarTarea(tarea.title);
+                    if (tarea.completed) {
+                        listaTareas.children().last().addClass("completada");
+                    }
+                } else {
+                    return false; // Salir del bucle each después de cargar 10 tareas
+                }
             });
-        }
+        });
     }
 
-    //guardar las tareas en el almacenamiento local
+    // guardar las tareas en el servidor
     function guardarTareas() {
-        const tareas = [];
-        listaTareas.childNodes.forEach(tarea => {
-            tareas.push({
-                texto: tarea.textContent,
-                completada: tarea.classList.contains("completada")
-            });
-        });
-        localStorage.setItem("tareas", JSON.stringify(tareas));
-    }
-
-    function agregarTareaDesdeTexto(texto, completada) {
-        const nuevaTarea = document.createElement("li");
-        nuevaTarea.textContent = texto;
-        nuevaTarea.classList.add("tarea");
-        if (completada) {
-            nuevaTarea.classList.add("completada");
-        }
-
-        nuevaTarea.addEventListener("click", function() {
-            nuevaTarea.classList.toggle("completada");
-            guardarTareas();
-        });
-
-        // botón para eliminar la tarea
-        const btnEliminar = document.createElement("span");
-        btnEliminar.textContent = "❌";
-        btnEliminar.classList.add("eliminar-tarea");
-        btnEliminar.addEventListener("click", function(event) {
-            event.stopPropagation();
-            listaTareas.removeChild(nuevaTarea);
-            guardarTareas();
-        });
-
-        nuevaTarea.appendChild(btnEliminar);
-        listaTareas.appendChild(nuevaTarea);
+        console.log("Tareas guardadas en el servidor (simulación)");
     }
 });
+
 
