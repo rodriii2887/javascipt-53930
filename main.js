@@ -30,7 +30,7 @@ $(document).ready(function() {
 
             // botón para eliminar la tarea
             const btnEliminar = $("<span>").text("❌").addClass("eliminar-tarea").click(function(event) {
-                event.stopPropagation(); // Evitar que se marque la tarea como completada al hacer clic en la "x"
+                event.stopPropagation();
                 $(this).parent().remove();
                 guardarTareas();
             });
@@ -46,13 +46,13 @@ $(document).ready(function() {
     function cargarTareas() {
         $.getJSON("https://jsonplaceholder.typicode.com/todos", function(data) {
             $.each(data, function(index, tarea) {
-                if (index < 10) { // Limitamos a cargar solo 10 tareas para mantener la demostración simple
+                if (index < 10) {
                     agregarTarea(tarea.title);
                     if (tarea.completed) {
                         listaTareas.children().last().addClass("completada");
                     }
                 } else {
-                    return false; // Salir del bucle each después de cargar 10 tareas
+                    return false;
                 }
             });
         });
